@@ -1,0 +1,201 @@
+version: '3.0'
+
+services:
+  zookeeper:
+    restart: always
+    image: "zookeeper:3.5"
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zookeeper:2888:3888;zookeeper:2181
+
+  kafka:
+    restart: always
+    image: "wurstmeister/kafka"
+    ports:
+      - "9092:9092"
+    env_file:
+      - kafka.env
+    depends_on:
+      - zookeeper
+
+  redis:
+    restart: always
+    image: "redis:4.0"
+    ports:
+      - "6379"
+
+  tb-core:
+    restart: always
+    image: "thingsboard/tb-node:3.5.0"
+    ports:
+      - "8080:8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 200m
+        max-file: 30
+    environment:
+      TB_HOST: tb-core
+      CLUSTER_NODE_ID: tb-core
+    env_file:
+      - tb-node.hybrid.env
+    volumes:
+      - ./tb-node/conf:/config
+      - ./tb-node/log:/var/log/thingsboard
+    depends_on:
+      - kafka
+      - redis
+      - tb-js-executor
+      - postgres
+      - cassandra
+
+  postgres:
+    restart: always
+    image: "postgres:12"
+    ports:
+      - "5432"
+    environment:
+      POSTGRES_DB: thingsboard
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./tb-node/postgres:/var/lib/postgresql/data
+
+  cassandra:
+    restart: always
+    image: "cassandra:4.0.4"
+    ports:
+      - "9042"
+    volumes:
+      - ./tb-node/cassandra:/var/lib/cassandra
+
+  tb-mqtt-transport:
+    restart: always
+    image: "thingsboard/tb-mqtt-transport:3.5.0"
+    ports:
+      - "1883"
+    environment:
+      TB_HOST: tb-mqtt-transport
+      CLUSTER_NODE_ID: tb-mqtt-transport
+    env_file:
+      - tb-mqtt-transport.env
+    volumes:
+      - ./tb-transports/mqtt/conf:/config
+      - ./tb-transports/mqtt/log:/var/log/tb-mqtt-transport
+    depends_on:
+      - kafka
+
+  tb-http-transport:
+    restart: always
+    image: "thingsboard/tb-http-transport:3.5.0"
+    ports:
+      - "8081"
+    environment:
+      TB_HOST: tb-http-transport
+      CLUSTER_NODE_ID: tb-http-transport
+    env_file:
+      - tb-http-transport.env
+    volumes:
+      - ./tb-transports/http/conf:/config
+      - ./tb-transports/http/log:/var/log/tb-http-transport
+    depends_on:
+      - kafka
+
+  tb-coap-transport:
+    restart: always
+    image: "thingsboard/tb-coap-transport:3.5.0"
+    ports:
+      - "5683-5688:5683-5688/udp"
+    environment:
+      TB_HOST: tb-coap-transport
+      CLUSTER_NODE_ID: tb-coap-transport
+    env_file:
+      - tb-coap-transport.env
+    volumes:
+      - ./tb-transports/coap/conf:/config
+      - ./tb-transports/coap/log:/var/log/tb-coap-transport
+    depends_on:
+      - kafka
+
+  tb-rule-engine:
+    restart: always
+    image: "thingsboard/tb-node:3.5.0"
+    ports:
+      - "8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200m"
+        max-file: "30"
+    environment:
+      TB_SERVICE_ID: tb-rule-engine
+      TB_SERVICE_TYPE: tb-rule-engine
+      JAVA_OPTS: "-Xmx1024M -Xms1024M -Xss384k -XX:+AlwaysPreTouch"
+    env_file:
+      - tb-node.env
+    volumes:
+      - ./tb-node/conf:/config
+      - ./tb-node/log:/var/log/thingsboard
+    depends_on:
+      - zookeeper
+      - tb-js-executor
+
+  tb-js-executor:
+    restart: always
+    image: "thingsboard/tb-js-executor:3.5.0"
+    deploy:
+      replicas: 20
+    env_file:
+      - tb-js-executor.env
+    depends_on:
+      - kafka
+
+  tb-lwm2m-transport:
+    restart: always
+    image: "thingsboard/tb-lwm2m-transport:3.5.0"
+    ports:
+      - "5685:5685/udp"
+    environment:
+      TB_SERVICE_ID: tb-lwm2m-transport
+      JAVA_OPTS: "-Xmx1024M -Xms1024M -Xss384k -XX:+AlwaysPreTouch"
+    env_file:
+      - tb-lwm2m-transport.env
+    volumes:
+      - ./tb-transports/lwm2m/conf:/config
+      - ./tb-transports/lwm2m/log:/var/log/tb-lwm2m-transport
+    depends_on:
+      - zookeeper
+      - tb-core
+
+  tb-snmp-transport:
+    restart: always
+    image: "thingsboard/tb-snmp-transport:3.5.0"
+    environment:
+      TB_SERVICE_ID: tb-snmp-transport
+      JAVA_OPTS: "-Xmx1024M -Xms1024M -Xss384k -XX:+AlwaysPreTouch"
+    env_file:
+      - tb-snmp-transport.env
+    volumes:
+      - ./tb-transports/snmp/conf:/config
+      - ./tb-transports/snmp/log:/var/log/tb-snmp-transport
+    depends_on:
+      - zookeeper
+      - tb-core
+
+  tb-vc-executor:
+    restart: always
+    image: "thingsboard/tb-vc-executor:3.5.0"
+    ports:
+      - "8081"
+    environment:
+      TB_SERVICE_ID: tb-vc-executor
+      JAVA_OPTS: "-Xmx1024M -Xms1024M -Xss384k -XX:+AlwaysPreTouch"
+    env_file:
+      - tb-vc-executor.env
+    volumes:
+      - ./tb-vc-executor/conf:/config
+      - ./tb-vc-executor/log:/var/log/tb-vc-executor
+    depends_on:
+      - zookeeper
+      - tb-core
