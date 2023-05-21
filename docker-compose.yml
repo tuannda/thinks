@@ -48,7 +48,6 @@ services:
       - redis
       - tb-js-executor
       - postgres
-      - cassandra
 
   postgres:
     restart: always
