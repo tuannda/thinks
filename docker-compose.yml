@@ -131,7 +131,7 @@ services:
     environment:
       TB_SERVICE_ID: tb-rule-engine
       TB_SERVICE_TYPE: tb-rule-engine
-      JAVA_OPTS: "-Xmx1024M -Xms1024M -Xss384k -XX:+AlwaysPreTouch"
+      JAVA_OPTS: "-Xmx512M -Xms512M -Xss384k -XX:+AlwaysPreTouch"
     env_file:
       - tb-node.env
     volumes:
@@ -158,7 +158,7 @@ services:
       - "5685:5685/udp"
     environment:
       TB_SERVICE_ID: tb-lwm2m-transport
-      JAVA_OPTS: "-Xmx1024M -Xms1024M -Xss384k -XX:+AlwaysPreTouch"
+      JAVA_OPTS: "-Xmx512M -Xms512M -Xss384k -XX:+AlwaysPreTouch"
     env_file:
       - tb-lwm2m-transport.env
     volumes:
@@ -173,7 +173,7 @@ services:
     image: "thingsboard/tb-snmp-transport:3.5.0"
     environment:
       TB_SERVICE_ID: tb-snmp-transport
-      JAVA_OPTS: "-Xmx1024M -Xms1024M -Xss384k -XX:+AlwaysPreTouch"
+      JAVA_OPTS: "-Xmx512M -Xms512M -Xss384k -XX:+AlwaysPreTouch"
     env_file:
       - tb-snmp-transport.env
     volumes:
@@ -190,7 +190,7 @@ services:
       - "8081"
     environment:
       TB_SERVICE_ID: tb-vc-executor
-      JAVA_OPTS: "-Xmx1024M -Xms1024M -Xss384k -XX:+AlwaysPreTouch"
+      JAVA_OPTS: "-Xmx512M -Xms512M -Xss384k -XX:+AlwaysPreTouch"
     env_file:
       - tb-vc-executor.env
     volumes:
