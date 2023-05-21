@@ -127,8 +127,8 @@ services:
   tb-js-executor:
     restart: always
     image: "thingsboard/tb-js-executor:3.5.0"
-    deploy:
-      replicas: 2
+    # deploy:
+    #   replicas: 2
     env_file:
       - tb-js-executor.env
     depends_on:
