@@ -43,7 +43,6 @@ services:
       - tb-node.hybrid.env
     volumes:
       - ./tb-node/conf:/config
-      - ./tb-node/log:/var/log/thingsboard
     depends_on:
       - kafka
       - redis
