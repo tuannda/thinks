@@ -81,7 +81,6 @@ services:
       - tb-mqtt-transport.env
     volumes:
       - ./tb-transports/mqtt/conf:/config
-      - ./tb-transports/mqtt/log:/var/log/tb-mqtt-transport
     depends_on:
       - kafka
 
@@ -97,7 +96,6 @@ services:
       - tb-http-transport.env
     volumes:
       - ./tb-transports/http/conf:/config
-      - ./tb-transports/http/log:/var/log/tb-http-transport
     depends_on:
       - kafka
 
@@ -119,7 +117,6 @@ services:
       - tb-node.env
     volumes:
       - ./tb-node/conf:/config
-      - ./tb-node/log:/var/log/thingsboard
     depends_on:
       - zookeeper
       - tb-js-executor
@@ -144,7 +141,6 @@ services:
       - tb-snmp-transport.env
     volumes:
       - ./tb-transports/snmp/conf:/config
-      - ./tb-transports/snmp/log:/var/log/tb-snmp-transport
     depends_on:
       - zookeeper
       - tb-core
@@ -161,7 +157,6 @@ services:
       - tb-vc-executor.env
     volumes:
       - ./tb-vc-executor/conf:/config
-      - ./tb-vc-executor/log:/var/log/tb-vc-executor
     depends_on:
       - zookeeper
       - tb-core
