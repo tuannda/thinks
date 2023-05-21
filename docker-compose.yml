@@ -102,22 +102,6 @@ services:
     depends_on:
       - kafka
 
-  tb-coap-transport:
-    restart: always
-    image: "thingsboard/tb-coap-transport:3.5.0"
-    ports:
-      - "5683-5688:5683-5688/udp"
-    environment:
-      TB_HOST: tb-coap-transport
-      CLUSTER_NODE_ID: tb-coap-transport
-    env_file:
-      - tb-coap-transport.env
-    volumes:
-      - ./tb-transports/coap/conf:/config
-      - ./tb-transports/coap/log:/var/log/tb-coap-transport
-    depends_on:
-      - kafka
-
   tb-rule-engine:
     restart: always
     image: "thingsboard/tb-node:3.5.0"
@@ -150,23 +134,6 @@ services:
       - tb-js-executor.env
     depends_on:
       - kafka
-
-  tb-lwm2m-transport:
-    restart: always
-    image: "thingsboard/tb-lwm2m-transport:3.5.0"
-    ports:
-      - "5685:5685/udp"
-    environment:
-      TB_SERVICE_ID: tb-lwm2m-transport
-      JAVA_OPTS: "-Xmx512M -Xms512M -Xss384k -XX:+AlwaysPreTouch"
-    env_file:
-      - tb-lwm2m-transport.env
-    volumes:
-      - ./tb-transports/lwm2m/conf:/config
-      - ./tb-transports/lwm2m/log:/var/log/tb-lwm2m-transport
-    depends_on:
-      - zookeeper
-      - tb-core
 
   tb-snmp-transport:
     restart: always
